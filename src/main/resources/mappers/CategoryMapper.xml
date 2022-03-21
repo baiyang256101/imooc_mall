@@ -25,6 +25,17 @@
         FROM imooc_mall_category
         WHERE name = #{name,jdbcType=VARCHAR}
     </select>
+    <select id="selectList" resultType="com.imooc.mall.model.pojo.Category">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM imooc_mall_category
+    </select>
+    <select id="selectCategoriesByParentId" resultType="com.imooc.mall.model.pojo.Category">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM imooc_mall_category
+        WHERE parent_id =#{parentId}
+    </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
         from imooc_mall_category

@@ -19,6 +19,7 @@ public enum ImoocMallExceptionEnum {
     CREATE_FAILED(100011, "新增失败！"),
     REQUEST_PARAM_ERROR(100011, "参数错误！"),
     CATEGORY_NOT_FOUND(100012, "目录不存在！"),
+    DELETE_FAILED(100013, "删除失败！"),
 
     SYSTEM_ERROR(20000, "系统异常！");
     /* 异常码 */

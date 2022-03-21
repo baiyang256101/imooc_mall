@@ -1,15 +1,22 @@
 package com.imooc.mall.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.imooc.mall.exception.ImoocMallException;
 import com.imooc.mall.exception.ImoocMallExceptionEnum;
 import com.imooc.mall.model.dao.CategoryMapper;
 import com.imooc.mall.model.pojo.Category;
 import com.imooc.mall.model.reuqest.AddCategoryReq;
+import com.imooc.mall.model.vo.CategoryVO;
 import com.imooc.mall.service.CategoryService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 描述：  CategoryService 实现类
@@ -44,6 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * 更新后台目录
+     *
      * @param updateCategory
      */
     @Override
@@ -62,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
              * 30 鸭货 2
              */
             if (categoryOld != null && !categoryOld.getId().equals(updateCategory.getId())) {// id在数据库中不存在，名称存在
-                    throw new ImoocMallException(ImoocMallExceptionEnum.NAME_EXISTED);
+                throw new ImoocMallException(ImoocMallExceptionEnum.NAME_EXISTED);
             }
             int count = categoryMapper.updateByPrimaryKeySelective(updateCategory);
 
@@ -74,4 +82,51 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
+    @Override
+    public void delete(Integer id) {
+        Category categoryOld = categoryMapper.selectByPrimaryKey(id);
+        if (categoryOld == null) { // 查询不到
+            throw new ImoocMallException(ImoocMallExceptionEnum.DELETE_FAILED);
+        }
+        int count = categoryMapper.deleteByPrimaryKey(id);
+        if (count == 0) { //删除失败
+            throw new ImoocMallException((ImoocMallExceptionEnum.DELETE_FAILED));
+        }
+    }
+
+    @Override
+    public PageInfo listForAdmin(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize, "type,order_num");
+        List<Category> categories = categoryMapper.selectList();
+        PageInfo<Category> pageInfo = new PageInfo<>(categories);
+        return pageInfo;
+    }
+
+
+    @Override
+    @Cacheable(value = "listCategoryForCustomer") // 缓存的类能够序列化，实现Serializable接口
+    public List<CategoryVO> listCategoryForCustomer() {
+
+        ArrayList<CategoryVO> categoryVOS = new ArrayList<>();
+
+        recursiveFindCategories(categoryVOS, 0); // 一级目录父目录Id为0
+        return categoryVOS;
+    }
+
+    private void recursiveFindCategories(List<CategoryVO> categoryVOS, Integer parentId) {
+        // 递归获取所有子类别，并组合成目录树
+        List<Category> categoryList = categoryMapper.selectCategoriesByParentId(parentId);
+
+        if (!CollectionUtils.isEmpty(categoryList)) { //不为空
+            for (Category category : categoryList) {
+                CategoryVO categoryVO = new CategoryVO();
+                BeanUtils.copyProperties(category, categoryVO);// 拷贝
+                categoryVOS.add(categoryVO);
+                // 给子目录赋值，categoryVOS 将补充完整
+                recursiveFindCategories(categoryVO.getChildCategory(), categoryVO.getId());
+            }
+
+        }
+
+    }
 }

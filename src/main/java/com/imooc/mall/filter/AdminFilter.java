@@ -1,13 +1,8 @@
 package com.imooc.mall.filter;
 
-import com.imooc.mall.common.ApiRestResponse;
 import com.imooc.mall.common.Constant;
-import com.imooc.mall.exception.ImoocMallExceptionEnum;
-import com.imooc.mall.model.pojo.Category;
 import com.imooc.mall.model.pojo.User;
 import com.imooc.mall.service.UserService;
-import org.springframework.beans.BeanUtils;
-import org.springframework.http.client.support.HttpRequestWrapper;
 
 import javax.annotation.Resource;
 import javax.servlet.*;
