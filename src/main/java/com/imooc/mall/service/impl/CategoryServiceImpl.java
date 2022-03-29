@@ -105,11 +105,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Cacheable(value = "listCategoryForCustomer") // 缓存的类能够序列化，实现Serializable接口
-    public List<CategoryVO> listCategoryForCustomer() {
-
+    public List<CategoryVO> listCategoryForCustomer(Integer parentId) {
         ArrayList<CategoryVO> categoryVOS = new ArrayList<>();
-
-        recursiveFindCategories(categoryVOS, 0); // 一级目录父目录Id为0
+        recursiveFindCategories(categoryVOS, parentId); // 一级目录父目录Id为 0
         return categoryVOS;
     }
 
@@ -125,7 +123,6 @@ public class CategoryServiceImpl implements CategoryService {
                 // 给子目录赋值，categoryVOS 将补充完整
                 recursiveFindCategories(categoryVO.getChildCategory(), categoryVO.getId());
             }
-
         }
 
     }

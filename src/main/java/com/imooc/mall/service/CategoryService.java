@@ -5,6 +5,7 @@ import com.imooc.mall.exception.ImoocMallException;
 import com.imooc.mall.model.pojo.Category;
 import com.imooc.mall.model.reuqest.AddCategoryReq;
 import com.imooc.mall.model.vo.CategoryVO;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -21,5 +22,6 @@ public interface CategoryService {
 
     PageInfo listForAdmin(Integer pageNum, Integer pageSize);
 
-    List<CategoryVO> listCategoryForCustomer();
+    @Cacheable(value = "listCategoryForCustomer") // 缓存的类能够序列化，实现Serializable接口
+    List<CategoryVO> listCategoryForCustomer(Integer parentId);
 }

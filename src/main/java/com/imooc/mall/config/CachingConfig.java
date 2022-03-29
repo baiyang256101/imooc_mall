@@ -24,7 +24,6 @@ public class CachingConfig {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
         redisCacheConfiguration = redisCacheConfiguration.entryTtl(Duration.ofSeconds(30));
         return new RedisCacheManager(redisCacheWriter, redisCacheConfiguration);
-
     }
 }
 

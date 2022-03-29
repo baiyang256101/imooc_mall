@@ -22,11 +22,35 @@
         from imooc_mall_product
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByName" resultType="com.imooc.mall.model.pojo.Product">
+    <select id="selectByName" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM imooc_mall_product
         WHERE name = #{name}
+    </select>
+    <select id="selectListForAdmin" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM imooc_mall_product
+        ORDER BY update_time DESC
+    </select>
+    <select id="selectList" resultMap="BaseResultMap" parameterType="com.imooc.mall.model.query.ProductListQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM imooc_mall_product
+        <where>
+            <if test="query.keyword != null">
+                and name like #{query.keyword}
+            </if>
+            <if test="query.categoryIds != null">
+                and category_id in
+                <foreach collection="query.categoryIds" close=")" item="item" open="(" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            and status = 1
+        </where>
+        ORDER BY update_time DESC
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
@@ -155,5 +179,13 @@
             create_time = #{createTime,jdbcType=TIMESTAMP},
             update_time = #{updateTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="batchUpdateSellStatus">
+        UPDATE imooc_mall_product
+        SET status = #{sellStatus}
+        WHERE id in
+        <foreach collection="ids" close=")" item="id" open="(" separator=",">
+            #{id}
+        </foreach>
     </update>
 </mapper>
